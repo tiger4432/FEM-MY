@@ -1,7 +1,9 @@
 {
-  "xlim": [-1e-2, 2e-2],
+  "xlim": [-1.1e-2, 2.1e-2],
   "ylim": [-0.1e-6, 0.1e-6],
+  "xlim2": [-1.1e-2, 2.1e-2],
+  "ylim2": [-2.35e-6, -1.85e-6],
   "mesh": true,
-  "figsize": [20, 10],
+  "figsize": [20, 20],
   "item": "stress"
 }
