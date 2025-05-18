@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Mesh Generator UI</title>
+    <style>
+      canvas {
+        border: 1px solid #ccc;
+      }
+      #controls {
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Polygon Mesh Generator (Vanilla JS)</h2>
+    <canvas id="canvas" width="600" height="400"></canvas>
+    <div id="controls">
+      <button onclick="completePolygon()">Complete Polygon</button>
+      <button onclick="exportMesh()">Export Mesh JSON</button>
+      <select id="materialSelect">
+        <option value="SiO2">SiO2</option>
+        <option value="Cu">Cu</option>
+      </select>
+    </div>
+
+    <script>
+      const canvas = document.getElementById("canvas");
+      const ctx = canvas.getContext("2d");
+      let polygons = [];
+      let currentPolygon = [];
+      let materials = [];
+
+      canvas.addEventListener("click", (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        currentPolygon.push([x, y]);
+        draw();
+      });
+
+      function completePolygon() {
+        if (currentPolygon.length > 2) {
+          polygons.push([...currentPolygon]);
+          materials.push(document.getElementById("materialSelect").value);
+          currentPolygon = [];
+          draw();
+        }
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.lineWidth = 1;
+        polygons.forEach((poly, idx) => {
+          ctx.beginPath();
+          ctx.moveTo(poly[0][0], poly[0][1]);
+          poly.forEach(([x, y], i) => {
+            if (i > 0) ctx.lineTo(x, y);
+          });
+          ctx.closePath();
+          ctx.strokeStyle = "black";
+          ctx.stroke();
+          ctx.fillStyle =
+            materials[idx] === "Cu" ? "rgba(255,0,0,0.3)" : "rgba(0,0,255,0.3)";
+          ctx.fill();
+        });
+
+        if (currentPolygon.length > 0) {
+          ctx.beginPath();
+          ctx.moveTo(currentPolygon[0][0], currentPolygon[0][1]);
+          currentPolygon.forEach(([x, y]) => ctx.lineTo(x, y));
+          ctx.strokeStyle = "gray";
+          ctx.stroke();
+        }
+      }
+
+      function exportMesh() {
+        const mesh = polygons.map((poly, idx) => ({
+          points: poly,
+          material: materials[idx],
+        }));
+        const blob = new Blob([JSON.stringify(mesh, null, 2)], {
+          type: "application/json",
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "mesh.json";
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+    </script>
+  </body>
+</html>
